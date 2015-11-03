@@ -15,4 +15,6 @@ python fetchTradeHistory.py -h
 python fetchTradeHistory.py --user email@email.com --out records.csv
 # Generate JSON
 python fetchTradeHistory.py --user email@email.com --out records.json
+# Filter results to a single contract
+python fetchTradeHistory.py --user email@email.com --out records.csv --filter='{"symbol": "XBT24H"}'
 ```

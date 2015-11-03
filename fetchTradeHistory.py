@@ -24,6 +24,13 @@ if extension != 'json' and extension != 'csv':
     print extension
     raise Exception('Output file extension must be json or csv!')
 
+if(args.filter):
+    # Verify if it's proper JSON
+    try:
+        json.loads(args.filter)
+    except ValueError, e:
+        raise ValueError("Filter is not valid JSON! Make sure to single-quote the string.")
+
 if not args.password:
     args.password = getpass.getpass()
 
@@ -39,15 +46,9 @@ count = 500  # max API will allow
 query = {
     'reverse': True,
     'start': 0,
-    'count': count
+    'count': count,
+    'filter': args.filter
 }
-if(args.filter):
-    # Verify if it's proper JSON
-    try:
-        json.loads(args.filter)
-    except ValueError, e:
-        raise ValueError("Filter is not valid JSON! Make sure to single-quote the string.")
-    query['filter'] = args.filter
 
 out = []
 outStr = ''

@@ -21,7 +21,7 @@ class APIKeyAuthWithExpires(AuthBase):
         For more details, see https://www.bitmex.com/app/apiKeys
         """
         # modify and return the request
-        expires = int(round(time.time()) + 5) # 5s grace period in case of clock skew 
+        expires = int(round(time.time()) + 5) # 5s grace period in case of clock skew
         r.headers['api-expires'] = str(expires)
         r.headers['api-key'] = self.apiKey
         r.headers['api-signature'] = self.generate_signature(self.apiSecret, r.method, r.url, expires, r.body or '')
@@ -32,9 +32,9 @@ class APIKeyAuthWithExpires(AuthBase):
     # A signature is HMAC_SHA256(secret, verb + path + nonce + data), hex encoded.
     # Verb must be uppercased, url is relative, nonce must be an increasing 64-bit integer
     # and the data, if present, must be JSON without whitespace between keys.
-    # 
+    #
     # For example, in psuedocode (and in real code below):
-    # 
+    #
     # verb=POST
     # url=/api/v1/order
     # nonce=1416993995705

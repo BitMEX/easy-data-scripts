@@ -51,8 +51,8 @@ class BitMEX(object):
 
     def get_instrument(self):
         """Get an instrument's details."""
-        api = "instrument"
-        instruments = self._curl_bitmex(api=api, query={'filter': json.dumps({'symbol': self.symbol})})
+        path = "instrument"
+        instruments = self._curl_bitmex(path=path, query={'filter': json.dumps({'symbol': self.symbol})})
         if len(instruments) == 0:
             print "Instrument not found: %s." % self.symbol
             exit(1)
@@ -69,8 +69,8 @@ class BitMEX(object):
 
     def market_depth(self):
         """Get market depth / orderbook."""
-        api = "orderBook"
-        return self._curl_bitmex(api=api, query={'symbol': self.symbol})
+        path = "orderBook"
+        return self._curl_bitmex(path=path, query={'symbol': self.symbol})
 
     def recent_trades(self):
         """Get recent trades.
@@ -84,8 +84,8 @@ class BitMEX(object):
                u'tid': u'93842'},
 
         """
-        api = "trade/getRecent"
-        return self._curl_bitmex(api=api)
+        path = "trade/getRecent"
+        return self._curl_bitmex(path=path)
 
     @property
     def snapshot(self):
@@ -104,7 +104,7 @@ class BitMEX(object):
         if self.apiKey:
             return
         loginResponse = self._curl_bitmex(
-            api="user/login",
+            path="user/login",
             postdict={'email': self.login, 'password': self.password, 'token': self.otpToken})
         self.token = loginResponse['id']
         self.session.headers.update({'access-token': self.token})
@@ -122,7 +122,7 @@ class BitMEX(object):
     @authentication_required
     def funds(self):
         """Get your current balance."""
-        return self._curl_bitmex(api="user/margin")
+        return self._curl_bitmex(path="user/margin")
 
     @authentication_required
     def buy(self, quantity, price):
@@ -155,14 +155,14 @@ class BitMEX(object):
             'price': price,
             'clOrdID': clOrdID
         }
-        return self._curl_bitmex(api=endpoint, postdict=postdict, verb="POST")
+        return self._curl_bitmex(path=endpoint, postdict=postdict, verb="POST")
 
     @authentication_required
     def open_orders(self):
         """Get open orders."""
-        api = "order"
+        path = "order"
         orders = self._curl_bitmex(
-            api=api,
+            path=path,
             query={'filter': json.dumps({'ordStatus.isTerminated': False, 'symbol': self.symbol})},
             verb="GET"
         )
@@ -172,16 +172,16 @@ class BitMEX(object):
     @authentication_required
     def cancel(self, orderID):
         """Cancel an existing order."""
-        api = "order"
+        path = "order"
         postdict = {
             'orderID': orderID,
         }
-        return self._curl_bitmex(api=api, postdict=postdict, verb="DELETE")
+        return self._curl_bitmex(path=path, postdict=postdict, verb="DELETE")
 
-    def _curl_bitmex(self, api, query=None, postdict=None, timeout=3, verb=None):
+    def _curl_bitmex(self, path, query=None, postdict=None, timeout=3, verb=None):
         """Send a request to BitMEX Servers."""
         # Handle URL
-        url = self.base_url + api
+        url = self.base_url + path
 
         # Default to POST if data is attached, GET otherwise
         if not verb:
@@ -212,7 +212,7 @@ class BitMEX(object):
                 print "Token expired, reauthenticating..."
                 sleep(1)
                 self.authenticate()
-                return self._curl_bitmex(api, query, postdict, timeout, verb)
+                return self._curl_bitmex(path, query, postdict, timeout, verb)
 
             # 404, can be thrown if order canceled does not exist.
             elif response.status_code == 404:
@@ -228,22 +228,22 @@ class BitMEX(object):
                 print "Unable to contact the BitMEX API (503), retrying. " + \
                     "Request: %s \n %s" % (url, json.dumps(postdict))
                 sleep(1)
-                return self._curl_bitmex(api, query, postdict, timeout, verb)
+                return self._curl_bitmex(path, query, postdict, timeout, verb)
             # Unknown Error
             else:
                 print "Unhandled Error:", e, response.text
-                print "Endpoint was: %s %s" % (verb, api)
+                print "Endpoint was: %s %s" % (verb, path)
                 exit(1)
 
         except requests.exceptions.Timeout, e:
             # Timeout, re-run this request
             print "Timed out, retrying..."
-            return self._curl_bitmex(api, query, postdict, timeout, verb)
+            return self._curl_bitmex(path, query, postdict, timeout, verb)
 
         except requests.exceptions.ConnectionError, e:
             print "Unable to contact the BitMEX API (ConnectionError). Please check the URL. Retrying. " + \
                 "Request: %s \n %s" % (url, json.dumps(postdict))
             sleep(1)
-            return self._curl_bitmex(api, query, postdict, timeout, verb)
+            return self._curl_bitmex(path, query, postdict, timeout, verb)
 
         return response.json()

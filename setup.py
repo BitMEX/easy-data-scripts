@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-from setuptools import setup, find_packages
-from os.path import dirname, join
+from setuptools import setup
+from os.path import dirname, join, isfile
+from shutil import copyfile
 
 here = dirname(__file__)
 
@@ -15,3 +16,7 @@ setup(name='bitmex-easy-data-scripts',
           'requests'
       ]
       )
+
+if not isfile('settings.py'):
+    copyfile('_settings_base.py', 'settings.py')
+print("\n**** \nImportant!!!\nEdit settings.py before starting the script.\n****")

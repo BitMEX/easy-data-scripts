@@ -18,13 +18,13 @@ python setup.py install
 # Using the script:
 
 # View help
-python fetchTradeHistory.py -h
+python fetchExecutionTradeHistory.py -h
 # Print CSV results to stdout
-python fetchTradeHistory.py
+python fetchExecutionTradeHistory.py
 # Generate CSV file
-python fetchTradeHistory.py > records.csv
+python fetchExecutionTradeHistory.py > records.csv
 # Generate JSON file
-python fetchTradeHistory.py --fileType json > records.json
+python fetchExecutionTradeHistory.py --fileType json > records.json
 # Filter results to a single contract
-python fetchTradeHistory.py --filter='{"symbol": "XBTUSD"}' > records.csv
+python fetchExecutionTradeHistory.py --filter='{"symbol": "XBTUSD"}' > records.csv
 ```

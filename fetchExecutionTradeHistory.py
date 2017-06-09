@@ -5,7 +5,7 @@ import sys
 from lib import bitmex
 from settings import API_KEY, API_SECRET, API_BASE
 
-parser = argparse.ArgumentParser(description='Fetch your full trade history from BitMEX.')
+parser = argparse.ArgumentParser(description='Fetch your full execution trade history from BitMEX.')
 parser.add_argument('--apiKey', type=str, required=(not API_KEY), default=API_KEY,
                     help='API Key. Generate from https://www.bitmex.com/app/apiKeys')
 parser.add_argument('--apiSecret', type=str, required=(not API_SECRET), default=API_SECRET,
@@ -23,7 +23,7 @@ if fileType != 'json' and fileType != 'csv':
     raise Exception('Output file type must be json or csv! Given: %s' % fileType)
 
 if not args.apiKey or not args.apiSecret:
-    print('Please fill in API_KEY and API_SECRET at the top of fetchTradeHistory.py!\n' +
+    print('Please fill in API_KEY and API_SECRET in settings.py!\n' +
           'You can create an API key from https://www.bitmex.com/app/apiKeys')
     sys.exit(1)
 
@@ -40,7 +40,7 @@ connector = bitmex.BitMEX(base_url=API_BASE, apiKey=args.apiKey, apiSecret=args.
 # Do trade history query
 count = 500  # max API will allow
 query = {
-    'reverse': True,
+    'reverse': 'true',
     'start': 0,
     'count': count,
     'filter': args.filter

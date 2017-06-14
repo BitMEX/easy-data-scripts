@@ -31,19 +31,19 @@ query = {
     'filter': args.filter
 }
 
-header = False
+csvwriter = None
 
 while True:
     data = connector._curl_bitmex(path="trade", verb="GET", query=query, timeout=10)
 
-    # Write to stdout
-    # csv requires dict keys
-    keys = data[0].keys()
-    keys.sort()
-    csvwriter = csv.DictWriter(sys.stdout, fieldnames=keys)
-    if not header:
+    if csvwriter is None:
+        # csv requires dict keys
+        keys = data[0].keys()
+        keys.sort()
+        # Write to stdout
+        csvwriter = csv.DictWriter(sys.stdout, fieldnames=keys)
         csvwriter.writeheader()
-        header = True
+
     csvwriter.writerows(data)
 
     query['start'] += count

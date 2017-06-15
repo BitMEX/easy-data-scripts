@@ -44,6 +44,8 @@ while True:
 
     if csvwriter is None:
         # csv requires dict keys
+        if len(data) == 0:
+            break
         keys = data[0].keys()
         keys.sort()
         # Write to stdout

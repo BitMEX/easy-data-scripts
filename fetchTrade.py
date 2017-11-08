@@ -6,8 +6,9 @@ from lib import bitmex
 from settings import API_BASE
 
 parser = argparse.ArgumentParser(description='Fetch trade history from BitMEX.')
-parser.add_argument('--path',   type=str, help='Path')
-parser.add_argument('--filter', type=str, help='Query filter as JSON.')
+parser.add_argument('--path',    type=str, help='Path')
+parser.add_argument('--symbol',  type=str, help='Symbol filter.')
+parser.add_argument('--filter',  type=str, help='Query filter as JSON.')
 parser.add_argument('--binSize', type=str, help='Bin Size.')
 
 args = parser.parse_args()
@@ -34,6 +35,8 @@ query = {
     'count': count,
     'filter': args.filter
 }
+if args.symbol:
+    query['symbol'] = args.symbol
 if args.binSize:
     query['binSize'] = args.binSize
 

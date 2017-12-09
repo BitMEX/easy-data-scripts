@@ -2,6 +2,7 @@ import argparse
 import json
 import csv
 import sys
+import time
 from lib import bitmex
 from settings import API_BASE
 
@@ -10,6 +11,7 @@ parser.add_argument('--path',    type=str, help='Path')
 parser.add_argument('--symbol',  type=str, help='Symbol filter.')
 parser.add_argument('--filter',  type=str, help='Query filter as JSON.')
 parser.add_argument('--binSize', type=str, help='Bin Size.')
+parser.add_argument('--sleep', type=float, help='Sleep time for big requests.')
 
 args = parser.parse_args()
 
@@ -44,7 +46,8 @@ csvwriter = None
 
 while True:
     data = connector._curl_bitmex(path=path, verb="GET", query=query, timeout=10)
-
+    if args.sleep:
+        time.sleep(args.sleep)
     if csvwriter is None:
         # csv requires dict keys
         if len(data) == 0:

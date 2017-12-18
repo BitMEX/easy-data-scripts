@@ -84,7 +84,7 @@ class BitMEX(object):
                u'tid': u'93842'},
 
         """
-        path = "trade/getRecent"
+        path = "trade"
         return self._curl_bitmex(path=path)
 
     @property

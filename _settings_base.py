@@ -8,4 +8,4 @@ API_SECRET = ''
 
 API_BASE = 'https://www.bitmex.com/api/v1/'
 # Uncomment to work on Testnet
-# API_BASE = 'https://testnet.bitmex.com/api/v1'
+# API_BASE = 'https://testnet.bitmex.com/api/v1/'

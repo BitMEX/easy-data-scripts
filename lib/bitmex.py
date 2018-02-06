@@ -2,11 +2,11 @@
 import requests
 from time import sleep
 import json
-import errors
+from . import errors
 import math
 import uuid
-from accessTokenAuth import AccessTokenAuth
-from apiKeyAuthWithExpires import APIKeyAuthWithExpires
+from .accessTokenAuth import AccessTokenAuth
+from .apiKeyAuthWithExpires import APIKeyAuthWithExpires
 
 
 # https://www.bitmex.com/api/explorer/
@@ -47,19 +47,19 @@ class BitMEX(object):
             "mid": (float(data['bidPrice']) + float(data['askPrice'])) / 2
         }
 
-        return {k: round(float(v), data['tickLog']) for k, v in ticker.iteritems()}
+        return {k: round(float(v), data['tickLog']) for k, v in ticker.items()}
 
     def get_instrument(self):
         """Get an instrument's details."""
         path = "instrument"
         instruments = self._curl_bitmex(path=path, query={'filter': json.dumps({'symbol': self.symbol})})
         if len(instruments) == 0:
-            print "Instrument not found: %s." % self.symbol
+            print("Instrument not found: %s." % self.symbol)
             exit(1)
 
         instrument = instruments[0]
         if instrument["state"] != "Open":
-            print "The instrument %s is no longer open. State: %s" % (self.symbol, instrument["state"])
+            print("The instrument %s is no longer open. State: %s" % (self.symbol, instrument["state"]))
             exit(1)
 
         # tickLog is the log10 of tickSize
@@ -109,14 +109,14 @@ class BitMEX(object):
         self.token = loginResponse['id']
         self.session.headers.update({'access-token': self.token})
 
-    def authentication_required(function):
+    def authentication_required(fn):
         """Annotation for methods that require auth."""
         def wrapped(self, *args, **kwargs):
             if not (self.token or self.apiKey):
                 msg = "You must be authenticated to use this method"
-                raise errors.AuthenticationError, msg
+                raise errors.AuthenticationError(msg)
             else:
-                return function(self, *args, **kwargs)
+                return fn(self, *args, **kwargs)
         return wrapped
 
     @authentication_required
@@ -161,9 +161,14 @@ class BitMEX(object):
     def open_orders(self):
         """Get open orders."""
         path = "order"
+
+        filter_dict = {'ordStatus.isTerminated': False}
+        if self.symbol:
+            filter_dict['symbol'] = self.symbol
+
         orders = self._curl_bitmex(
             path=path,
-            query={'filter': json.dumps({'ordStatus.isTerminated': False, 'symbol': self.symbol})},
+            query={'filter': json.dumps(filter_dict)},
             verb="GET"
         )
         # Only return orders that start with our clOrdID prefix.
@@ -200,16 +205,16 @@ class BitMEX(object):
             # Make non-200s throw
             response.raise_for_status()
 
-        except requests.exceptions.HTTPError, e:
+        except requests.exceptions.HTTPError as e:
             # 401 - Auth error. Re-auth and re-run this request.
             if response.status_code == 401:
                 if self.token is None:
-                    print "Login information or API Key incorrect, please check and restart."
-                    print "Error: " + response.text
+                    print("Login information or API Key incorrect, please check and restart.")
+                    print("Error: " + response.text)
                     if postdict:
-                        print postdict
+                        print(postdict)
                     exit(1)
-                print "Token expired, reauthenticating..."
+                print("Token expired, reauthenticating...")
                 sleep(1)
                 self.authenticate()
                 return self._curl_bitmex(path, query, postdict, timeout, verb)
@@ -217,32 +222,29 @@ class BitMEX(object):
             # 404, can be thrown if order canceled does not exist.
             elif response.status_code == 404:
                 if verb == 'DELETE':
-                    print "Order not found: %s" % postdict['orderID']
+                    print("Order not found: %s" % postdict['orderID'])
                     return
-                print "Unable to contact the BitMEX API (404). " + \
-                    "Request: %s \n %s" % (url, json.dumps(postdict))
+                print("Unable to contact the BitMEX API (404). Request: %s \n %s" % (url, json.dumps(postdict)))
                 exit(1)
 
             # 503 - BitMEX temporary downtime, likely due to a deploy. Try again
             elif response.status_code == 503:
-                print "Unable to contact the BitMEX API (503), retrying. " + \
-                    "Request: %s \n %s" % (url, json.dumps(postdict))
+                print("Unable to contact the BitMEX API (503), retrying. Request: %s \n %s" % (url, json.dumps(postdict)))
                 sleep(1)
                 return self._curl_bitmex(path, query, postdict, timeout, verb)
             # Unknown Error
             else:
-                print "Unhandled Error:", e, response.text
-                print "Endpoint was: %s %s" % (verb, path)
+                print("Unhandled Error:", e, response.text)
+                print("Endpoint was: %s %s" % (verb, path))
                 exit(1)
 
-        except requests.exceptions.Timeout, e:
+        except requests.exceptions.Timeout as e:
             # Timeout, re-run this request
-            print "Timed out, retrying..."
+            print("Timed out, retrying...")
             return self._curl_bitmex(path, query, postdict, timeout, verb)
 
-        except requests.exceptions.ConnectionError, e:
-            print "Unable to contact the BitMEX API (ConnectionError). Please check the URL. Retrying. " + \
-                "Request: %s \n %s" % (url, json.dumps(postdict))
+        except requests.exceptions.ConnectionError as e:
+            print("Unable to contact the BitMEX API (ConnectionError). Please check the URL. Retrying. Request: %s \n %s" % (url, json.dumps(postdict)))
             sleep(1)
             return self._curl_bitmex(path, query, postdict, timeout, verb)
 

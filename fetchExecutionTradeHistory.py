@@ -19,7 +19,7 @@ args = parser.parse_args()
 
 # Validate Args
 fileType = args.fileType
-if fileType != 'json' and fileType != 'csv':
+if fileType not in ('json', 'csv'):
     raise Exception('Output file type must be json or csv! Given: %s' % fileType)
 
 if not args.apiKey or not args.apiSecret:
@@ -27,7 +27,7 @@ if not args.apiKey or not args.apiSecret:
           'You can create an API key from https://www.bitmex.com/app/apiKeys')
     sys.exit(1)
 
-if(args.filter):
+if args.filter:
     # Verify if it's proper JSON
     try:
         json.loads(args.filter)
@@ -58,7 +58,7 @@ while True:
 if fileType == 'csv':
     # csv requires dict keys
     keys = out[0].keys()
-    keys.sort()
+    keys = sorted(keys)
     csvwriter = csv.DictWriter(sys.stdout, fieldnames=keys)
     csvwriter.writeheader()
     csvwriter.writerows(out)

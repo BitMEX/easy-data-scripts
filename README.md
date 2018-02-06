@@ -28,3 +28,6 @@ python fetchExecutionTradeHistory.py --fileType json > records.json
 # Filter results to a single contract
 python fetchExecutionTradeHistory.py --filter='{"symbol": "XBTUSD"}' > records.csv
 ```
+
+### Compatibility
+Python 3.5+

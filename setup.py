@@ -14,7 +14,8 @@ setup(name='bitmex-easy-data-scripts',
       url='',
       install_requires=[
           'requests'
-      ]
+      ],
+      packages=[''],
       )
 
 if not isfile('settings.py'):

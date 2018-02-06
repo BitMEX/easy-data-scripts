@@ -52,8 +52,7 @@ while True:
         # csv requires dict keys
         if len(data) == 0:
             break
-        keys = data[0].keys()
-        keys.sort()
+        keys = sorted(data[0].keys())
         # Write to stdout
         csvwriter = csv.DictWriter(sys.stdout, fieldnames=keys)
         csvwriter.writeheader()

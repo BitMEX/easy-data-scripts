@@ -54,6 +54,10 @@ while True:
     if len(data) < count:
         break
 
+if len(out) == 0:
+    print('No trade history found for this account. Exiting.', file=sys.stderr)
+    exit(1)
+
 # Write to stdout
 if fileType == 'csv':
     # csv requires dict keys

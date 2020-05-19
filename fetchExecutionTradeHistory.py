@@ -2,6 +2,7 @@ import argparse
 import json
 import csv
 import sys
+import time
 from lib import bitmex
 from settings import API_KEY, API_SECRET, API_BASE
 
@@ -14,6 +15,9 @@ parser.add_argument('--fileType', type=str, default='csv',
                     help='Output file type. Must end be json or csv.')
 parser.add_argument('--filter', type=str,
                     help='Query filter as JSON.')
+parser.add_argument('--sleep', type=float,
+                    help='Sleep time for big requests.')
+
 
 args = parser.parse_args()
 
@@ -49,6 +53,8 @@ query = {
 out = []
 while True:
     data = connector._curl_bitmex(path="execution/tradeHistory", verb="GET", query=query, timeout=10)
+    if args.sleep:
+        time.sleep(args.sleep)
     out.extend(data)
     query['start'] += count
     if len(data) < count:
